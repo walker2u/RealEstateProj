@@ -9,7 +9,10 @@ import authRouter from './routes/auth.route.js'
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+}));
 app.use(express.json());
 mongoose.connect(process.env.MONGO).then(console.log("Connected to Db")).catch((err) => {
     console.log("error : ", err);
