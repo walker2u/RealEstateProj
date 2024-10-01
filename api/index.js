@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cors from 'cors'
-
+import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.route.js'
 import authRouter from './routes/auth.route.js'
 
@@ -14,6 +14,7 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json());
+app.use(cookieParser());
 mongoose.connect(process.env.MONGO).then(console.log("Connected to Db")).catch((err) => {
     console.log("error : ", err);
 });
