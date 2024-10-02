@@ -8,6 +8,7 @@ import SignOut from './pages/SignOut'
 import Header from './components/Header'
 import SignUp from './pages/SignUp'
 import PrivateRoute from './components/privateRoute'
+import CreateListing from './pages/CreateListing'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         </Route>
         <Route path="/about" element={<About />} />
         <Route path="/signout" element={<SignOut />} />
+        <Route path="/createListing" element={<CreateListing />} />
       </Routes>
     </BrowserRouter>
   )
