@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRef } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { app } from '../firebase.js';
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js'
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signInStart, signOutFailure, signOutStart, signOutSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js'
 
 function Profile() {
     const { currentUser, loading, error } = useSelector(state => state.user);
@@ -89,6 +89,27 @@ function Profile() {
 
         } catch (error) {
             dispatch(deleteUserFailure(error.message));
+        }
+    }
+
+    const handleSignOut = async () => {
+
+        try {
+            dispatch(signOutStart());
+            const res = await fetch('http://localhost:3000/api/user/signout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+            const data = await res.json()
+
+            if (data.success === false) {
+                dispatch(signOutFailure(data.message));
+                return;
+            }
+            dispatch(signOutSuccess(data));
+
+        } catch (err) {
+            dispatch(signOutFailure(error.message));
         }
     }
 
