@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRef } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { app } from '../firebase.js';
-import { updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js'
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js'
 
 function Profile() {
     const { currentUser, loading, error } = useSelector(state => state.user);
@@ -73,6 +73,25 @@ function Profile() {
         }
     }
 
+    const handleDeleteUser = async () => {
+        try {
+            deleteUserStart();
+            const res = await fetch(`http://localhost:3000/api/user/delete/${currentUser._id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success === false) {
+                dispatch(deleteUserFailure(data.message));
+                return;
+            }
+            dispatch(deleteUserSuccess(data));
+
+        } catch (error) {
+            dispatch(deleteUserFailure(error.message));
+        }
+    }
+
     return (
         <div className='p-3 max-w-lg mx-auto'>
             <h1 className='text-3xl font-semibold text-center'>Profile</h1>
@@ -94,8 +113,8 @@ function Profile() {
                 <button disabled={loading} className='bg-slate-700 text-white rounded-lg p-3 uppercase  hover:opacity-95 disabled:opacity-80'>{loading ? 'Loading' : 'Update'}</button>
             </form>
             <div className='flex justify-between mt-5'>
-                <span className='text-red-600 cursor-pointer'>Delete Account</span>
-                <span className='text-red-600 cursor-pointer'>Sign Out</span>
+                <span onClick={handleDeleteUser} className='text-red-600 cursor-pointer'>Delete Account</span>
+                <span onClick={handleSignOut} className='text-red-600 cursor-pointer'>Sign Out</span>
             </div>
             <p className='text-red-900 text-center'>{error && error}</p>
             <p className='text-green-700 text-center'>{updateStatus && 'User Updated SuccesFully!'}</p>
