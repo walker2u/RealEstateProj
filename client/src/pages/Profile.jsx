@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useRef } from 'react';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import { app } from '../firebase.js';
-import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signInStart, signOutFailure, signOutStart, signOutSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js'
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutFailure, signOutStart, signOutSuccess, updateFailure, updateStart, updateSuccess } from '../redux/user/userSlice.js';
 
 function Profile() {
     const { currentUser, loading, error } = useSelector(state => state.user);
@@ -15,6 +15,8 @@ function Profile() {
     const [formData, setFormData] = useState({});
     const dispatch = useDispatch();
     const [updateStatus, setUpdateStatus] = useState(false);
+    const [showListingError, setShowListingError] = useState(null);
+    const [listings, setListings] = useState({});
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -101,7 +103,7 @@ function Profile() {
                 method: 'POST',
                 credentials: 'include'
             });
-            const data = await res.json()
+            const data = await res.json();
 
             if (data.success === false) {
                 dispatch(signOutFailure(data.message));
@@ -111,6 +113,24 @@ function Profile() {
 
         } catch (err) {
             dispatch(signOutFailure(error.message));
+        }
+    }
+
+    const handleShowListing = async () => {
+        try {
+            setShowListingError(null);
+            const res = await fetch(`http://localhost:3000/api/user/listing/${currentUser._id}`, {
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data === false) {
+                setShowListingError("Error while showing your Listing!");
+                return;
+            }
+            setListings(data);
+
+        } catch (error) {
+            setShowListingError("Some Error occured while fetching!");
         }
     }
 
@@ -141,6 +161,30 @@ function Profile() {
             </div>
             <p className='text-red-900 text-center'>{error && error}</p>
             <p className='text-green-700 text-center'>{updateStatus && 'User Updated SuccesFully!'}</p>
+            <button type='button' onClick={handleShowListing} className='text-green-700 w-full '>Show Listings</button>
+            <p className='text-red-900 text-center'>{showListingError && showListingError}</p>
+            {
+                listings && listings.length > 0 &&
+                <div className='flex flex-col gap-4'>
+                    <h1 className='text-center mt-7 text-2xl'>Your Listings</h1>
+                    {listings.map((list) => {
+                        return (
+                            <div className='border rounder-lg p-3 flex justify-between items-center' key={list._id}>
+                                <Link to={`/listing/${list._id}`}>
+                                    <img className='h-16 w-16 object-contain' src={list.imageUrls[0]} alt="Listing cover" />
+                                </Link>
+                                <Link to={`/listing/${list._id}`} className='text-slate-700 font-semibold flex-1 hover:underline truncate'>
+                                    <p>{list.name}</p>
+                                </Link>
+                                <div className='flex flex-col items-center'>
+                                    <button className='text-red-700 uppercase'>Edit</button>
+                                    <button className='text-green-700 uppercase'>Delete</button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            }
         </div>
     )
 }
