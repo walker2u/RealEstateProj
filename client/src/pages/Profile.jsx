@@ -17,6 +17,7 @@ function Profile() {
     const [updateStatus, setUpdateStatus] = useState(false);
     const [showListingError, setShowListingError] = useState(null);
     const [listings, setListings] = useState({});
+    const [listingError, setListingError] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -128,9 +129,30 @@ function Profile() {
                 return;
             }
             setListings(data);
-
         } catch (error) {
             setShowListingError("Some Error occured while fetching!");
+        }
+    }
+
+    const handleDeleteListing = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/listing/delete/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success == false) {
+                console.log(data.message);
+                return;
+            }
+            setListings((prev) => {
+                prev.filter((list) => {
+                    list._id !== id;
+                })
+            })
+
+        } catch (error) {
+            pass
         }
     }
 
@@ -162,6 +184,7 @@ function Profile() {
             <p className='text-red-900 text-center'>{error && error}</p>
             <p className='text-green-700 text-center'>{updateStatus && 'User Updated SuccesFully!'}</p>
             <button type='button' onClick={handleShowListing} className='text-green-700 w-full '>Show Listings</button>
+
             <p className='text-red-900 text-center'>{showListingError && showListingError}</p>
             {
                 listings && listings.length > 0 &&
@@ -178,7 +201,7 @@ function Profile() {
                                 </Link>
                                 <div className='flex flex-col items-center'>
                                     <button className='text-red-700 uppercase'>Edit</button>
-                                    <button className='text-green-700 uppercase'>Delete</button>
+                                    <button type='button' onClick={() => handleDeleteListing(list._id)} className='text-green-700 uppercase'>Delete</button>
                                 </div>
                             </div>
                         )
