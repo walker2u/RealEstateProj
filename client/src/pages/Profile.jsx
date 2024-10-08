@@ -200,7 +200,9 @@ function Profile() {
                                     <p>{list.name}</p>
                                 </Link>
                                 <div className='flex flex-col items-center'>
-                                    <button className='text-red-700 uppercase'>Edit</button>
+                                    <Link to={`/updateListing/${list._id}`}>
+                                        <button className='text-red-700 uppercase'>Edit</button>
+                                    </Link>
                                     <button type='button' onClick={() => handleDeleteListing(list._id)} className='text-green-700 uppercase'>Delete</button>
                                 </div>
                             </div>
