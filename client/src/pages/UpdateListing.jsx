@@ -25,7 +25,6 @@ export default function UpdateListing() {
                 return;
             }
             setFormData(listing);
-
         }
         fetchListing();
     }, []);
@@ -168,6 +167,7 @@ export default function UpdateListing() {
             if (data.success === false) {
                 setError(data.message);
             }
+            navigate(`/listing/${data._id}`);
         } catch (error) {
             setError(error.message);
             setLoading(false);
