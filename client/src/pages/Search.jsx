@@ -16,6 +16,7 @@ function Search() {
 
     const [loading, setLoading] = useState(false);
     const [listing, setListing] = useState([]);
+    const [showMore, setShowMore] = useState(false);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -54,6 +55,7 @@ function Search() {
             const data = await res.json();
             setListing(data);
             setLoading(false);
+            if (data.length > 8) setShowMore(true);
         };
         fetchListing();
 
@@ -107,6 +109,18 @@ function Search() {
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
     };
+
+    const showMoreClick = async () => {
+        const urlParams = new URLSearchParams(location.search);
+        const numOfListings = listing.length;
+        const startIndex = numOfListings;
+        urlParams.set('startIndex', startIndex);
+        const searchString = urlParams.toString();
+        const res = await fetch(`http://localhost:3000/api/listing/getsearchlisting?${searchString}`);
+        const data = await res.json();
+        if (data.length < 9) setShowMore(false);
+        setListing([...listing, ...data]);
+    }
 
     return (
         <div className='flex flex-col md:flex-row'>
@@ -179,6 +193,10 @@ function Search() {
                         <ListingItem key={list._id} listing={list} />
                     ))}
                 </div>
+                {
+                    showMore &&
+                    (<button onClick={showMoreClick} className='text-green-700 hover:underline p-7'>show more</button>)
+                }
             </div>
         </div>
     )
