@@ -16,11 +16,14 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }));
-app.use(express.json());
-app.use(cookieParser());
 mongoose.connect(process.env.MONGO).then(console.log("Connected to Db")).catch((err) => {
     console.log("error : ", err);
 });
+app.use(express.json());
+app.use(cookieParser());
+app.listen(3000, () => {
+    console.log("Server is Running on port 3000");
+})
 
 app.use('/api/user/', userRouter);
 app.use('/api/auth/', authRouter);
@@ -30,7 +33,7 @@ app.use(express.static(path.join(__dirname, '/client/dist')));
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-});
+})
 
 app.use((err, req, res, next) => {
     const statusCode = err.status || 500;
@@ -41,7 +44,3 @@ app.use((err, req, res, next) => {
         message
     });
 });
-
-app.listen(3000, () => {
-    console.log("Server is Running on port 3000");
-})
